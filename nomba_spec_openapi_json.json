@@ -1,0 +1,2702 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "The Nomba REST API.",
+    "title" : "Nomba API",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://api.nomba.com"
+  } ],
+  "tags" : [ {
+    "name" : "Accounts"
+  }, {
+    "name" : "Terminals"
+  }, {
+    "name" : "Wallets"
+  }, {
+    "name" : "Transactions"
+  }, {
+    "name" : "Payout"
+  }, {
+    "name" : "Authenticate"
+  } ],
+  "paths" : {
+    "/v1/oauth2/token/issue" : {
+      "post" : {
+        "description" : "You can use this endpoint to [authenticate with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) using either the `client-credentials` approach or the `pkce` approach.",
+        "operationId" : "Issue an access token",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AuthenticationRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationResult"
+                }
+              }
+            },
+            "description" : "Your authentication request was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "summary" : "Obtain access token from the Nomba system",
+        "tags" : [ "Authenticate" ]
+      }
+    },
+    "/v1/oauth2/pkce/auth" : {
+      "post" : {
+        "description" : "You can use this endpoint to generate an `auth_code` when following the `pkce` approach. PKCE is important when you are authenticating directly from a client where exposing the clientSecret is dangerous. More details about Nomba's Oauth Authentication can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing)",
+        "operationId" : "Issue an auth token",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PKCEAuthRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PKCEAuthResult"
+                }
+              }
+            },
+            "description" : "Your request to generate an authentication code was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "summary" : "Obtain an authentication code for the PKCE Auth flow",
+        "tags" : [ "Authenticate" ]
+      }
+    },
+    "/v1/oauth2/token/refresh" : {
+      "post" : {
+        "description" : "You can use this endpoint to refresh an expired `access_token`. More details about Nomba's Oauth Authentication can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing)",
+        "operationId" : "Refresh token",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationResult"
+                }
+              }
+            },
+            "description" : "Your request to refresh a token was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "summary" : "Refresh an expired token",
+        "tags" : [ "Authenticate" ]
+      }
+    },
+    "/v1/oauth2/token/revoke" : {
+      "post" : {
+        "description" : "You can use this endpoint to revoke an `access_token`. More details about Nomba's Oauth Authentication can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing)",
+        "operationId" : "Revoke an access_token",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RevokeTokenRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RevokeTokenResult"
+                }
+              }
+            },
+            "description" : "Your request to revoke an access_token was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Revoke an access_token",
+        "tags" : [ "Authenticate" ]
+      }
+    },
+    "/v1/accounts" : {
+      "get" : {
+        "description" : "You can use this endpoints to fetch all the accounts tied to a business. Accounts are sorted by date, with the most recently-created account appearing first.",
+        "operationId" : "Get all accounts tied to a business",
+        "parameters" : [ {
+          "description" : "This endpoint is paginated. `limit` describes the size of the page you are querying",
+          "example" : 10,
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "description" : "The `cursor` is used to scroll to the next page. When making the first call to list all accounts, there is no need to pass in any cursor since the API has not returned any cursor back to you. Only use cursor when the API provides it",
+          "example" : "xchbaVFsjdsbaADddd",
+          "in" : "query",
+          "name" : "cursor",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccountListResults"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "List all accounts",
+        "tags" : [ "Accounts" ]
+      },
+      "post" : {
+        "description" : "You can use this endpoint to create an account that is part of your business.",
+        "operationId" : "Create an account",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateAccountRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Account"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Create an account",
+        "tags" : [ "Accounts" ]
+      }
+    },
+    "/v1/accounts/{accountId}" : {
+      "get" : {
+        "description" : "You can use this endpoint to get details of a single account.",
+        "operationId" : "Get a single account",
+        "parameters" : [ {
+          "description" : "Returns the account with the matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Account"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get a single account",
+        "tags" : [ "Accounts" ]
+      }
+    },
+    "/v1/accounts/suspend" : {
+      "post" : {
+        "description" : "You can use this endpoint to suspend an account that is part of your business.",
+        "operationId" : "Suspend an account",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SuspendAccountRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Account"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Suspend an account",
+        "tags" : [ "Accounts" ]
+      }
+    },
+    "/v1/accounts/{accountId}/terminals" : {
+      "get" : {
+        "description" : "You can use this endpoint to fetch all terminals linked to an account.",
+        "operationId" : "Get all terminals assigned to an account",
+        "parameters" : [ {
+          "description" : "Returns the terminals of an account matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "This endpoint is paginated. `limit` describes the size of the page you are querying",
+          "example" : 10,
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "description" : "The `cursor` is used to scroll to the next page. When making the first call to list all accounts, there is no need to pass in any cursor since the API has not returned any cursor back to you. Only use cursor when the API provides it",
+          "example" : "xchbaVFsjdsbaADddd",
+          "in" : "query",
+          "name" : "cursor",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TerminalListResults"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Not found"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "Too many requests"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get all terminals assigned to an account",
+        "tags" : [ "Accounts" ]
+      }
+    },
+    "/v1/terminals/assign" : {
+      "post" : {
+        "description" : "You can use this endpoint to assign a terminal to an account.",
+        "operationId" : "Assign a terminal to an account",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssignTerminalRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Terminal"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Assign a terminal to an account",
+        "tags" : [ "Terminals" ]
+      }
+    },
+    "/v1/terminals/unassign" : {
+      "post" : {
+        "description" : "You can use this endpoint to unassign a terminal from an account.",
+        "operationId" : "Unassign a terminal from an account",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UnAssignTerminalRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Terminal"
+                }
+              }
+            },
+            "description" : "Created"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Unassign a terminal from an account",
+        "tags" : [ "Terminals" ]
+      }
+    },
+    "/v1/terminals/{terminalId}" : {
+      "get" : {
+        "description" : "You can use this endpoint to get details of a single terminal.",
+        "operationId" : "Get a single terminal",
+        "parameters" : [ {
+          "description" : "Returns the terminal with the matching `terminalId`.",
+          "example" : "2KUD0007",
+          "in" : "path",
+          "name" : "terminalId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Terminal"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get a single terminal",
+        "tags" : [ "Terminals" ]
+      },
+      "put" : {
+        "description" : "You can use this endpoint to update a terminal.",
+        "operationId" : "Update a terminal",
+        "parameters" : [ {
+          "description" : "Updates a terminal with the matching `terminalId`.",
+          "example" : "2KUD0007",
+          "in" : "path",
+          "name" : "terminalId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateTerminalRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Terminal"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Update a terminal",
+        "tags" : [ "Terminals" ]
+      }
+    },
+    "/v1/wallets/{accountId}" : {
+      "get" : {
+        "description" : "You can use this endpoint to get the wallet details of an account.",
+        "operationId" : "Get an account's wallet details",
+        "parameters" : [ {
+          "description" : "Returns the wallet details with the matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Wallet"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get an account's wallet details",
+        "tags" : [ "Wallets" ]
+      }
+    },
+    "/v1/wallets/{accountId}/transactions" : {
+      "get" : {
+        "description" : "You can use this endpoints to fetch all the wallet transactions tied to an account. Wallet transactions are sorted by date, with the most recently-created account appearing first.",
+        "operationId" : "List wallet transactions tied to an account",
+        "parameters" : [ {
+          "description" : "Returns the wallet transactions of an account matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "This endpoint is paginated. `limit` describes the size of the page you are querying",
+          "example" : 10,
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "description" : "The `cursor` is used to scroll to the next page. When making the first call to list all accounts, there is no need to pass in any cursor since the API has not returned any cursor back to you. Only use cursor when the API provides it",
+          "example" : "xchbaVFsjdsbaADddd",
+          "in" : "query",
+          "name" : "cursor",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WalletTransactionListResults"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "List wallet transactions tied to an account",
+        "tags" : [ "Wallets" ]
+      }
+    },
+    "/v1/transactions/{accountId}" : {
+      "get" : {
+        "description" : "You can use this endpoint to get the transactions of an account",
+        "operationId" : "Get an account's transactions",
+        "parameters" : [ {
+          "description" : "Returns the transactions of an account matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "This endpoint is paginated. `limit` describes the size of the page you are querying",
+          "example" : 10,
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "description" : "The `cursor` is used to scroll to the next page. When making the first call to list all accounts, there is no need to pass in any cursor since the API has not returned any cursor back to you. Only use cursor when the API provides it",
+          "example" : "xchbaVFsjdsbaADddd",
+          "in" : "query",
+          "name" : "cursor",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionListResults"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get an account's transactions",
+        "tags" : [ "Transactions" ]
+      },
+      "post" : {
+        "description" : "You can use this endpoint to fetch a single transaction on an account using specified types",
+        "operationId" : "Get transaction on an account using specified types",
+        "parameters" : [ {
+          "description" : "Returns the transaction of an account matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GetTransactionUsingSpecifiedTypeRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Transaction"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get transaction on an account using specified types",
+        "tags" : [ "Transactions" ]
+      }
+    },
+    "/v1/transactions/{accountId}/{transactionId}" : {
+      "get" : {
+        "description" : "You can use this endpoint to get a single transaction of an account",
+        "operationId" : "Get a single account's transactions",
+        "parameters" : [ {
+          "description" : "Returns the transaction matching `transactionId` of an account matching `accountId`.",
+          "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+          "in" : "path",
+          "name" : "accountId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "Returns the transaction matching `transactionId` of an account matching `accountId`.",
+          "example" : "POS-TRANSFER-22C1A-c28bab43-ea43-412c-94df-c1c242d5307f",
+          "in" : "path",
+          "name" : "transactionId",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "description" : "This endpoint is paginated. `limit` describes the size of the page you are querying",
+          "example" : 10,
+          "in" : "query",
+          "name" : "limit",
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "description" : "The `cursor` is used to scroll to the next page. When making the first call to list all accounts, there is no need to pass in any cursor since the API has not returned any cursor back to you. Only use cursor when the API provides it",
+          "example" : "xchbaVFsjdsbaADddd",
+          "in" : "query",
+          "name" : "cursor",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Transaction"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The resource the merchant is trying to access is not available"
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Get a single account's transactions",
+        "tags" : [ "Transactions" ]
+      }
+    },
+    "/v1/payout/transfer/lookup" : {
+      "post" : {
+        "description" : "You can use this endpoint to do a bank account lookup. This api call should preceed the call to `/v1/payout/transfer`",
+        "operationId" : "Bank account lookup",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BankAccountLookupRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BankAccountLookupResult"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Bank account lookup",
+        "tags" : [ "Payout" ]
+      }
+    },
+    "/v1/payout/transfer" : {
+      "post" : {
+        "description" : "You can use this endpoint to make an actual bank account tranfer from a Nomba account.",
+        "operationId" : "Transfer out of a Nomba account to a bank",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateTransferRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Transaction"
+                }
+              }
+            },
+            "description" : "Created."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Transfer out of a Nomba account to a bank",
+        "tags" : [ "Payout" ]
+      }
+    },
+    "/v1/payout/bank/codes" : {
+      "get" : {
+        "description" : "You can use this endpoint to fetch available banks",
+        "operationId" : "Fetch all banks",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Bank"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Fetch all banks",
+        "tags" : [ "Payout" ]
+      }
+    },
+    "/v1/payout/p2p/lookup" : {
+      "post" : {
+        "description" : "You can use this endpoint to do a Nomba account lookup. This api call should preceed the call to `/v1/payout/p2p`",
+        "operationId" : "P2P lookup",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/P2PLookupRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/P2PLookupResult"
+                }
+              }
+            },
+            "description" : "OK - your request was successful."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "P2P lookup",
+        "tags" : [ "Payout" ]
+      }
+    },
+    "/v1/payout/p2p" : {
+      "post" : {
+        "description" : "You can use this endpoint to make a tranfer from a Nomba account to another Nomba account.",
+        "operationId" : "Transfer out of a Nomba account to another Nomba account",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CreateP2PRequest"
+              }
+            }
+          },
+          "description" : "requestPayload",
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Transaction"
+                }
+              }
+            },
+            "description" : "Created."
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request body sent by merchant did not pass the validation checks"
+          },
+          "401" : {
+            "description" : "The access_token provided to access the resource is missing or invalid. Please go through [Authenticating with Nomba](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing) "
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "The request failed for some reason. The reason will be passed down to the client in form of `code` and `description`."
+          },
+          "429" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description" : "The merchant has maxed out the number of calls within a time period on this resource"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RequestError"
+                }
+              }
+            },
+            "description" : "Downstream system error"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ],
+        "summary" : "Transfer out of a Nomba account to another Nomba account",
+        "tags" : [ "Payout" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Account" : {
+        "type" : "object",
+        "description" : "A structure representing a Nomba account.",
+        "properties" : {
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "businessId" : {
+            "type" : "string",
+            "description" : "The businessId of the parent that houses this account.",
+            "example" : "412316"
+          },
+          "accountRef" : {
+            "type" : "string",
+            "description" : "Unique reference used to track an account from an external process. Would be auto-generated if not provided at the point of creation.",
+            "example" : "ACT_AMF0YN8UWH8CR8JZ",
+            "maxLength" : 20,
+            "minLength" : 20
+          },
+          "phoneNumber" : {
+            "type" : "string",
+            "description" : "The phoneNumber that is unique to the account bearer.",
+            "example" : "2348188667580"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email of the account bearer.",
+            "example" : "test123@exam.ple"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Name of the account bearer.",
+            "example" : "Testing Testing123",
+            "maxLength" : 255,
+            "minLength" : 2
+          },
+          "address" : {
+            "type" : "string",
+            "description" : "Address of the account bearer.",
+            "example" : "4, Alagomeji, Yaba, Lagos",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Status of the account.",
+            "enum" : [ "active", "pnd", "fraudulent", "suspend" ],
+            "example": "active"
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "Primary currency on the account (Only supported at the moment is “NGN”).",
+            "example" : "NGN",
+            "maxLength" : 3,
+            "minLength" : 3
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Brief description of the account.",
+            "example" : "Meat kebab spot"
+          },
+          "logoUrl" : {
+            "type" : "string",
+            "description" : "Network url of the account's logo.",
+            "example" : "https://network-image.network.com/12345"
+          },
+          "createdDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          },
+          "updatedDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "AccountListResults" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "Contains all accounts tied to a specific merchant/business",
+            "items" : {
+              "$ref" : "#/components/schemas/Account"
+            }
+          },
+          "cursor" : {
+            "type" : "string",
+            "format" : "int32",
+            "description" : "Value used to scroll to next page. It will be empty if there is no more page to scroll to",
+            "example" : "xchbaVFsjdsbaADddd"
+          }
+        }
+      },
+      "AssignTerminalRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to assign a terminal to an account",
+        "properties" : {
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account that the terminal needs to be mapped to.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "terminalId" : {
+            "type" : "string",
+            "description" : "The id of the terminal.",
+            "example" : "2KUD0007",
+            "maxLength" : 8,
+            "minLength" : 8
+          }
+        },
+        "required" : [ "accountId", "terminalId" ]
+      },
+      "AuthenticationRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an authentication request.",
+        "properties" : {
+          "grant_type" : {
+            "type" : "string",
+            "description" : "The grant type of the authentication.",
+            "enum" : [ "client_credentials", "auth_code", "refresh_token" ],
+            "example": "client_credentials"
+          },
+          "client_id" : {
+            "type" : "string",
+            "description" : "The client's id as obtained from your Nomba dashboard.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "client_secret" : {
+            "type" : "string",
+            "description" : "The client's secret as obtained from your Nomba dashboard. It is securely generated by the Nomba system",
+            "example" : "JFJ8yq3G4+DvjivJMsji0YkZBkkKdSdjifR+TgT9RLM=",
+            "maxLength" : 44,
+            "minLength" : 44
+          },
+          "code_verifier" : {
+            "type" : "string",
+            "description" : "A random string generated from the merchant's client system. This is only applicable when using the PKCE flow to get an access_token after a call made to `/v1/oauth2/pkce/auth`. More details about Nomba's Oauth Authentication can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing)",
+            "example" : "84748288484858686858337475763125",
+            "maxLength" : 32,
+            "minLength" : 32
+          },
+          "auth_code" : {
+            "type" : "string",
+            "description" : "A single use code received from the Nomba system upon a call made to `/v1/oauth2/pkce/auth`. PKCE flow is only valid when authentication/authorization is done directly from a web or a mobile app where exposing the `clientSecret` is dangerous. More details about PKCE flow can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing).",
+            "example" : "9d9f7t8r9w8r8t7d",
+            "maxLength" : 16,
+            "minLength" : 16
+          }
+        },
+        "required" : [ "grant_type"]
+      },
+      "AuthenticationResult" : {
+        "type" : "object",
+        "description" : "A structure representing an authentication result.",
+        "properties" : {
+          "businessId" : {
+            "type" : "string",
+            "description" : "The businessId of the merchant/business that is connecting to the Nomba system via API",
+            "example" : "412316"
+          },
+          "access_token" : {
+            "type" : "string",
+            "description" : "A JWT (Json Web Token) token used to grant access to resources on the Nomba API.",
+            "example" : "eyJhbGciOiJIUzI1NiJ9.eyJHOjhmYWM4M2FjLTc2YjAtNDM1Zi1hYTM1LThkOTU3ZGQ5MjdkZCI6Ikc6OGZhYzgzYWMtNzZiMC00MzVmLWFhMzUtOGQ5NTdkZDkyN2RkIiwiUjpURUFNU19PV05FUiI6IlI6VEVBTVNfT1dORVIiLCJFbWFpbDp2aWN0b3JzaG9hZ2FAZ21haWwuY29tIjoiRW1haWw6dmljdG9yc2hvYWdhQGdtYWlsLmNvbSIsImlhdCI6MTY4MTkxODU3OSwic3ViIjoiNWUyNmNmYjAtNTI5Zi00MTdiLWI4ZDItYWJjNDcxZjRjOWRiIiwiZXhwIjoxNjgxOTIyMTc5fQ.lQOsyhR1gajKdzE9IHQEtxhQyUrArctEDZiP9pWVTFY",
+            "maxLength" : 600,
+            "minLength" : 300
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "A JWT (Json Web Token) token used to refresh an expired access_token",
+            "example" : "eyJhbGciOiJIUzI1NiJ9.eyJHOjhmYWM4M2FjLTc2YjAtNDM1Zi1hYTM1LThkOTU3ZGQ5MjdkZCI6Ikc6OGZhYzgzYWMtNzZiMC00MzVmLWFhMzUtOGQ5NTdkZDkyN2RkIiwiUjpURUFNU19PV05FUiI6IlI6VEVBTVNfT1dORVIiLCJFbWFpbDp2aWN0b3JzaG9hZ2FAZ21haWwuY29tIjoiRW1haWw6dmljdG9yc2hvYWdhQGdtYWlsLmNvbSIsImlhdCI6MTY4MTkxODU3OSwic3ViIjoiNWUyNmNmYjAtNTI5Zi00MTdiLWI4ZDItYWJjNDcxZjRjOWRiIiwiZXhwIjoxNjgxOTIyMTc5fQ.lQOsyhR1gajKdzE9IHQEtxhQyUrArctEDZiP9pWVTFY",
+            "maxLength" : 600,
+            "minLength" : 300
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "Bank" : {
+        "type" : "object",
+        "description" : "A structure representing a p2p lookup result",
+        "properties" : {
+          "bankCode" : {
+            "type" : "string",
+            "description" : "The bank's code.",
+            "example" : "056",
+            "maxLength" : 6,
+            "minLength" : 3
+          },
+          "bankName" : {
+            "type" : "string",
+            "description" : "The bank's name.",
+            "example" : "GTB"
+          }
+        }
+      },
+      "BankAccountLookupRequest" : {
+        "type" : "object",
+        "description" : "A structure representing a bank account lookup request",
+        "properties" : {
+          "accountNumber" : {
+            "type" : "string",
+            "description" : "The account number to be looked up.",
+            "example" : "0554772814",
+            "maxLength" : 10,
+            "minLength" : 10
+          },
+          "bankCode" : {
+            "type" : "string",
+            "description" : "The bankCode of the bank the account number belongs to. This can be obtained from a call to `/v1/bank/codes` ",
+            "example" : "053"
+          }
+        },
+        "required" : [ "accountNumber", "bankCode" ]
+      },
+      "BankAccountLookupResult" : {
+        "type" : "object",
+        "description" : "A structure representing a bank account lookup result",
+        "properties" : {
+          "accountNumber" : {
+            "type" : "string",
+            "description" : "The account number already looked up.",
+            "example" : "0554772814",
+            "maxLength" : 10,
+            "minLength" : 10
+          },
+          "accountName" : {
+            "type" : "string",
+            "description" : "The name on the account.",
+            "example" : "M.A Animashaun"
+          }
+        }
+      },
+      "CreateAccountRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to create a Nomba account.",
+        "properties" : {
+          "accountRef" : {
+            "type" : "string",
+            "description" : "Unique reference used to track an account from an external process. Would be auto-generated if not provided at the point of creation.",
+            "example" : "ACT_AMF0YN8UWH8CR8JZ",
+            "maxLength" : 20,
+            "minLength" : 20
+          },
+          "phoneNumber" : {
+            "type" : "string",
+            "description" : "The phoneNumber that is unique to the account bearer.",
+            "example" : "2348188667580"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email of the account bearer. If not provided, it will be same as that of the business creating this account.",
+            "example" : "test123@exam.ple"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "Name of the account bearer.",
+            "example" : "Testing Testing123",
+            "maxLength" : 255,
+            "minLength" : 2
+          },
+          "address" : {
+            "type" : "string",
+            "description" : "Address of the account bearer.",
+            "example" : "4, Alagomeji, Yaba, Lagos",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "Primary currency on the account (Only supported at the moment is “NGN”).",
+            "example" : "NGN",
+            "maxLength" : 3,
+            "minLength" : 3
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Brief description of the account.",
+            "example" : "Meat kebab spot"
+          },
+          "logoUrl" : {
+            "type" : "string",
+            "description" : "Network url of the account's logo.",
+            "example" : "https://network-image.network.com/12345"
+          }
+        },
+        "required" : [ "name", "description", "phoneNumber", "address"]
+      },
+      "CreateTransferRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to create a payout transfer from a Nomba account to a Bank.",
+        "properties" : {
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account to be transferred from.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The amount to be transferred.",
+            "example" : 3500
+          },
+          "accountNumber" : {
+            "type" : "string",
+            "description" : "The destination bank account number.",
+            "example" : "0554772814",
+            "maxLength" : 10,
+            "minLength" : 10
+          },
+          "accountName" : {
+            "type" : "string",
+            "description" : "The name on the account.",
+            "example" : "M.A Animashaun"
+          },
+          "senderName" : {
+            "type" : "string",
+            "description" : "The name of the sender initiating the payment.",
+            "example" : "Daniel Kruger"
+          },
+          "merchantTxRef" : {
+            "type" : "string",
+            "description" : "Unique reference used to track a transaction from an external process.",
+            "example" : "UNQ_123abGGhh5546"
+          }
+        },
+        "required" : [ "accountId", "amount", "accountNumber", "accountName"]
+      },
+      "CreateP2PRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to create a payout p2p from a Nomba account to another Nomba account.",
+        "properties" : {
+          "recipientAccountId" : {
+            "type" : "string",
+            "description" : "The id of the account to be transferred from.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The amount to be transferred.",
+            "example" : 3500
+          },
+          "recipientAccountName" : {
+            "type" : "string",
+            "description" : "The name on the account.",
+            "example" : "M.A Animashaun"
+          },
+          "merchantTxRef" : {
+            "type" : "string",
+            "description" : "Unique reference used to track a transaction from an external process.",
+            "example" : "UNQ_123abGGhh5546"
+          }
+        },
+        "required" : [ "recipientAccountId", "amount", "recipientAccountName" ]
+      },
+      "ErrorResponse" : {
+        "type" : "object",
+        "description" : "An error response",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "An API error code.",
+            "example" : "E001"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Additional details about the error",
+            "example" : "Too many requests"
+          }
+        }
+      },
+      "Geolocation" : {
+        "type" : "object",
+        "description" : "Geolocation of terminal showing latitude, longitude and address",
+        "properties" : {
+          "latitude" : {
+            "type" : "string",
+            "description" : "Latitude of the terminal",
+            "example" : "7.5153622",
+            "readOnly" : true
+          },
+          "longitude" : {
+            "type" : "string",
+            "description" : "Longitude of the terminal",
+            "example" : "4.5164269",
+            "readOnly" : true
+          },
+          "address" : {
+            "type" : "string",
+            "description" : "Geocoded address of the terminal",
+            "example" : "GG88+4H Kajola, Nigeria",
+            "readOnly" : true
+          }
+        }
+      },
+      "GetTransactionUsingSpecifiedTypeRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to get a transaction using specified types",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "description" : "The specified type.",
+            "enum" : [ "rrn", "transactionId", "pos_rrn", "merchantTxRef"],
+            "example" : "transactionId"
+          },
+          "value" : {
+            "type" : "string",
+            "description" : "The value of the specified type.",
+            "example" : "POS-TRANSFER-22C1A-c28bab43-ea43-412c-94df-c1c242d5307f"
+          }
+        },
+        "required" : [ "type", "value" ]
+      },
+      "Menu" : {
+        "type" : "object",
+        "description" : "A structure representing a terminal's menu",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "A menu item on a terminal",
+            "enum" : [ "purchase", "pay_by_transfer", "pay_by_qr", "transfer", "admin"],
+            "example" : "purchase",
+            "readOnly" : true
+          }
+        }
+      },
+      "Meta" : {
+        "type" : "object",
+        "example" : "{\"property1\": \"value1\", \"property2\": \"value2\"}\"",
+        "properties" : {
+          "meta" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "PKCEAuthRequest" : {
+        "type" : "object",
+        "description" : "A structure representing a PKCE auth request.",
+        "properties" : {
+          "code_challenge" : {
+            "type" : "string",
+            "description" : "Value generated from the merchant's client system using the randomly generated codeVerifier as described in the [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing). This is only applicable when using the PKCE flow.",
+            "example" : "84748288484858686858337475763125",
+            "maxLength" : 32,
+            "minLength" : 32
+          }
+        },
+        "required" : [ "code_challenge"]
+      },
+      "PKCEAuthResult" : {
+        "type" : "object",
+        "description" : "A structure representing a PKCE Auth result.",
+        "properties" : {
+          "auth_code" : {
+            "type" : "string",
+            "description" : "A single use code received from the Nomba system upon a call made to `/v1/oauth2/pkce/auth`. PKCE flow is only valid when authentication/authorization is done directly from a web or a mobile app where exposing the `clientSecret` is dangerous. More details about PKCE flow can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing).",
+            "example" : "9d9f7t8r9w8r8t7d",
+            "maxLength" : 16,
+            "minLength" : 16
+          }
+        }
+      },
+      "P2PLookupRequest" : {
+        "type" : "object",
+        "description" : "A structure representing a p2p lookup request",
+        "properties" : {
+          "recipientPhoneNumber" : {
+            "type" : "string",
+            "description" : "The phone number to be looked up. This phone number must be linked to the destination account",
+            "example" : "08185775842"
+          }
+        },
+        "required" : [ "recipientPhoneNumber" ]
+      },
+      "P2PLookupResult" : {
+        "type" : "object",
+        "description" : "A structure representing a p2p lookup result",
+        "properties" : {
+          "accountName" : {
+            "type" : "string",
+            "description" : "The name on the account.",
+            "example" : "M.A Animashaun"
+          },
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          }
+        }
+      },
+      "RequestError" : {
+        "type" : "object",
+        "description" : "A Request Error response",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "description" : "An API error code.",
+            "example" : "E002"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Additional details about the error.",
+            "example" : "Invalid attribute value: accountRef. Must be more than or equal to 16"
+          },
+          "field" : {
+            "type" : "string",
+            "description" : "The parameter in your request that's causing the error.",
+            "example" : "accountRef"
+          }
+        }
+      },
+      "RefreshTokenRequest" : {
+        "type" : "object",
+        "description" : "A structure representing a refresh token request.",
+        "properties" : {
+          "grant_type" : {
+            "type" : "string",
+            "description" : "The grant type of the authentication.",
+            "enum" : [ "client_credentials", "auth_code", "refresh_token" ],
+            "example": "refresh_token"
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "description" : "A JWT (Json Web Token) token used to refresh an expired access_token",
+            "example" : "eyJhbGciOiJIUzI1NiJ9.eyJHOjhmYWM4M2FjLTc2YjAtNDM1Zi1hYTM1LThkOTU3ZGQ5MjdkZCI6Ikc6OGZhYzgzYWMtNzZiMC00MzVmLWFhMzUtOGQ5NTdkZDkyN2RkIiwiUjpURUFNU19PV05FUiI6IlI6VEVBTVNfT1dORVIiLCJFbWFpbDp2aWN0b3JzaG9hZ2FAZ21haWwuY29tIjoiRW1haWw6dmljdG9yc2hvYWdhQGdtYWlsLmNvbSIsImlhdCI6MTY4MTkxODU3OSwic3ViIjoiNWUyNmNmYjAtNTI5Zi00MTdiLWI4ZDItYWJjNDcxZjRjOWRiIiwiZXhwIjoxNjgxOTIyMTc5fQ.lQOsyhR1gajKdzE9IHQEtxhQyUrArctEDZiP9pWVTFY",
+            "maxLength" : 600,
+            "minLength" : 300
+          }
+        },
+        "required" : [ "grant_type", "refresh_token"]
+      },
+      "RevokeTokenRequest" : {
+        "type" : "object",
+        "description" : "A structure representing a request to revoke a token.",
+        "properties" : {
+          "clientId" : {
+            "type" : "string",
+            "description" : "The client's id as obtained from your Nomba dashboard.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "access_token" : {
+            "type" : "string",
+            "description" : "The JWT (Json Web Token) token to be revoked",
+            "example" : "eyJhbGciOiJIUzI1NiJ9.eyJHOjhmYWM4M2FjLTc2YjAtNDM1Zi1hYTM1LThkOTU3ZGQ5MjdkZCI6Ikc6OGZhYzgzYWMtNzZiMC00MzVmLWFhMzUtOGQ5NTdkZDkyN2RkIiwiUjpURUFNU19PV05FUiI6IlI6VEVBTVNfT1dORVIiLCJFbWFpbDp2aWN0b3JzaG9hZ2FAZ21haWwuY29tIjoiRW1haWw6dmljdG9yc2hvYWdhQGdtYWlsLmNvbSIsImlhdCI6MTY4MTkxODU3OSwic3ViIjoiNWUyNmNmYjAtNTI5Zi00MTdiLWI4ZDItYWJjNDcxZjRjOWRiIiwiZXhwIjoxNjgxOTIyMTc5fQ.lQOsyhR1gajKdzE9IHQEtxhQyUrArctEDZiP9pWVTFY",
+            "maxLength" : 600,
+            "minLength" : 300
+          }
+        },
+        "required" : [ "clientId", "access_token"]
+      },
+      "RevokeTokenResult" : {
+        "type" : "object",
+        "description" : "A structure representing a response from an attempt to revoke a token",
+        "properties" : {
+          "revoked" : {
+            "type" : "boolean",
+            "description" : "Tells if the access_token has been revoked",
+            "example" : true
+          }
+        }
+      },
+      "SuspendAccountRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to suspend a Nomba account.",
+        "properties" : {
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account to suspend.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          }
+        },
+        "required" : [ "accountId" ]
+      },
+      "Terminal" : {
+        "type" : "object",
+        "description" : "A structure representing a Nomba terminal",
+        "properties" : {
+          "terminalId" : {
+            "type" : "string",
+            "description" : "The terminalId of the terminal.",
+            "example" : "2KUD0007",
+            "maxLength" : 8,
+            "minLength" : 8
+          },
+          "serialNo" : {
+            "type" : "string",
+            "description" : "The terminal’s hardware serial number.",
+            "example" : "91207775332645"
+          },
+          "appVersion" : {
+            "type" : "string",
+            "description" : "The application version of the software running on the hardware.",
+            "example" : "1.6.4"
+          },
+          "merchantName" : {
+            "type" : "string",
+            "description" : "This is typically the name of the account that the terminal is mapped to.",
+            "example" : "Daniel's Kitchen",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "terminalLabel" : {
+            "type" : "string",
+            "description" : "A friendly label for the terminal.",
+            "example" : "Rose Hotel (Yaba)",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Status of the account.",
+            "enum" : [ "enable", "disable"],
+            "example" : "enable"
+          },
+          "mapped" : {
+            "type" : "boolean",
+            "description" : "Boolean value that tells if the terminal is mapped to an account or not.",
+            "example" : false
+          },
+          "meunList" : {
+            "type" : "array",
+            "description" : "Contains terminal menus.",
+            "items" : {
+              "type" : "string",
+              "description" : "A menu item on a terminal",
+              "enum" : [ "purchase", "pay_by_transfer", "pay_by_qr", "transfer", "admin"],
+              "example" : "purchase"
+            }
+          },
+          "geolocation" : {
+            "$ref" : "#/components/schemas/Geolocation"
+          },
+          "createdDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          },
+          "updatedDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "TerminalListResults" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "Contains all terminals tied to an account",
+            "items" : {
+              "$ref" : "#/components/schemas/Terminal"
+            }
+          },
+          "cursor" : {
+            "type" : "string",
+            "format" : "int32",
+            "description" : "Value used to scroll to next page. It will be empty if there is no more page to scroll to",
+            "example" : "xchbaVFsjdsbaADddd"
+          }
+        }
+      },
+      "Transaction" : {
+        "type" : "object",
+        "description" : "A structure representing a Nomba transaction",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The id of the transaction.",
+            "example" : "POS-TRANSFER-22C1A-c28bab43-ea43-412c-94df-c1c242d5307f",
+            "maxLength" : 55,
+            "minLength" : 55
+          },
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Status of the transaction.",
+            "enum" : [ "success", "payment_failed", "pending_billing" ],
+            "example": "success"
+          },
+          "source" : {
+            "type" : "string",
+            "description" : "Source of the transaction.",
+            "enum" : [ "pos", "web", "app" ],
+            "example": "pos"
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The transaction amount.",
+            "example" : 3500
+          },
+          "customerBillerId" : {
+            "type" : "string",
+            "description" : "The customer details involved in the transaction e.g. maskedCardPan, accountNumber, phoneNumber.",
+            "example" : "522915 **** **** 4456"
+          },
+          "productId" : {
+            "type" : "string",
+            "description" : "The product involved in the transaction.",
+            "example" : "053"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/Meta"
+          },
+          "createdDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "TransactionListResults" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "Contains all transactions tied to an account",
+            "items" : {
+              "$ref" : "#/components/schemas/Transaction"
+            }
+          },
+          "cursor" : {
+            "type" : "string",
+            "format" : "int32",
+            "description" : "Value used to scroll to next page. It will be empty if there is no more page to scroll to",
+            "example" : "xchbaVFsjdsbaADddd"
+          }
+        }
+      },
+      "UnAssignTerminalRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to unassign a terminal from an account",
+        "properties" : {
+          "accountId" : {
+            "type" : "string",
+            "description" : "The id of the account that the terminal needs to be unmapped from.",
+            "example" : "2242b79d-f2cf-4ccc-ada1-e890bd1a9f0d",
+            "maxLength" : 36,
+            "minLength" : 36
+          },
+          "terminalId" : {
+            "type" : "string",
+            "description" : "The id of the terminal.",
+            "example" : "2KUD0007",
+            "maxLength" : 8,
+            "minLength" : 8
+          }
+        },
+        "required" : [ "accountId", "terminalId" ]
+      },
+      "UpdateTerminalRequest" : {
+        "type" : "object",
+        "description" : "A structure representing an object required to update a terminal",
+        "properties" : {
+          "merchantName" : {
+            "type" : "string",
+            "description" : "This is typically the name of the account that the terminal is mapped to.",
+            "example" : "Daniel's Kitchen",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "terminalLabel" : {
+            "type" : "string",
+            "description" : "A friendly label for the terminal.",
+            "example" : "Rose Hotel (Yaba)",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Status of the account.",
+            "enum" : [ "enable", "disable"],
+            "example" : "enable"
+          },
+          "meunList" : {
+            "type" : "array",
+            "description" : "Contains terminal menus.",
+            "items" : {
+              "type" : "string",
+              "description" : "A menu item on a terminal",
+              "enum" : [ "purchase", "pay_by_transfer", "pay_by_qr", "transfer", "admin"],
+              "example" : "purchase"
+            }
+          }
+        }
+      },
+      "Wallet" : {
+        "type" : "object",
+        "description" : "A structure representing a Nomba wallet",
+        "properties" : {
+          "walletId" : {
+            "type" : "string",
+            "description" : "The id of the wallet linked to the account.",
+            "example" : "507f191e810c19729de860ea",
+            "maxLength" : 24,
+            "minLength" : 24
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "The currency value of the wallet linked to the account. Default is “NGN”.",
+            "example" : "NGN",
+            "maxLength" : 3,
+            "minLength" : 3
+          },
+         "balance" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The current wallet balance of the account.",
+            "example" : 3500
+          },
+          "createdDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "WalletTransaction" : {
+        "type" : "object",
+        "description" : "A structure representing a Nomba wallet transaction",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : "The id of the wallet transaction.",
+            "example" : "507f191e810c19729de860ea",
+            "maxLength" : 24,
+            "minLength" : 24
+          },
+          "walletId" : {
+            "type" : "string",
+            "description" : "The id of the wallet linked to the account.",
+            "example" : "507f191e810c19729de860ea",
+            "maxLength" : 24,
+            "minLength" : 24
+          },
+          "currency" : {
+            "type" : "string",
+            "description" : "The currency value of the wallet linked to the account. Default is “NGN”.",
+            "example" : "NGN",
+            "maxLength" : 3,
+            "minLength" : 3
+          },
+          "amount" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The transaction amount.",
+            "example" : 3500
+          },
+          "walletBalance" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "The current wallet balance of the account.",
+            "example" : 3500
+          },
+          "transactionType" : {
+            "type" : "string",
+            "description" : "Type of the transaction.",
+            "enum" : [ "credit", "debit" ],
+            "example": "credit"
+          },
+          "meta" : {
+            "$ref" : "#/components/schemas/Meta"
+          },
+          "createdDate" : {
+            "type" : "string",
+            "description" : "The date and time this entity was created. This value uses Coordinated Universal Time (UTC) and ISO 8601 format – `YYYY-MM-DDThh:mm:ssZ`.",
+            "example" : "2022-07-08T14:33:00Z"
+          }
+        }
+      },
+      "WalletTransactionListResults" : {
+        "type" : "object",
+        "properties" : {
+          "results" : {
+            "type" : "array",
+            "description" : "Contains all wallet transactions tied to an account",
+            "items" : {
+              "$ref" : "#/components/schemas/WalletTransaction"
+            }
+          },
+          "cursor" : {
+            "type" : "string",
+            "format" : "int32",
+            "description" : "Value used to scroll to next page. It will be empty if there is no more page to scroll to",
+            "example" : "xchbaVFsjdsbaADddd"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "BearerAuth" : {
+        "description" : "Nomba authenticates API calls with [OAuth2 HTTP bearer tokens](http://tools.ietf.org/html/rfc6750). There are two methods of authentication; [Client-Credentials method](https://www.rfc-editor.org/rfc/rfc6749) and [PKCE (Proof Key for Code Exchange)](https://www.rfc-editor.org/rfc/rfc7636) method. In each of the methods, You will get an `ACCESS_TOKEN`. You need to use an `\"Authorization\"` HTTP header to provide your `ACCESS_TOKEN`, with a `\"Bearer\"` prefix. For example: `Authorization: Bearer {ACCESS_TOKEN}`. More details about Nomba's Oauth Authentication can be found on [NombaAPI Specification Doc](https://docs.google.com/document/d/10mn6LeYpxVe9gr0hdDThUKJmpZW9X1dI3OaMu_vuUis/edit?usp=sharing)",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  }
+}
